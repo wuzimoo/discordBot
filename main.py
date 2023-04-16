@@ -4,7 +4,7 @@ import asyncio
 import sqlite3 as sql
 from config import settings, ban_word
 from db import dataBase
-
+import youtube_dl
 
 intents = discord.Intents.default() # Подключаем "Разрешения"
 intents.message_content = True
@@ -46,9 +46,37 @@ async def on_message(ctx : discord.message.Message):
         await ctx.channel.send("I play youtube")
 
 
+
+client = discord.Client()
+
+@client.event
+async def on_ready():
+    print(f'Logged in as {client.user.name} ({client.user.id})')
+
+@client.event
+async def on_message(message):
+    if message.content.startswith('!play'):
+        channel = message.author.voice.channel
+        voice_client = await channel.connect()
+        url = message.content[6:]
+        with youtube_dl.YoutubeDL() as ydl:
+            info = ydl.extract_info(url, download=False)
+            URL = info['formats'][0]['url']
+        voice_client.play(discord.FFmpegPCMAudio(URL))
+        await message.channel.send(f'Now playing: {info["title"]}')
+
+    if message.content.startswith('!leave'):
+        await message.guild.voice_client.disconnect()
+
+
+
+
 @bot.event
 async def on_guild_join(guild : discord.guild.Guild):
     dataBase.insert_guild(guild_id=guild.id, onn="True")
     ctx =  guild.get_channel(guild.channels[0].id)
     await ctx.text_channels[0].send("Всем привет, я готов к работе")
 bot.run(settings['token']) # Обращаемся к словарю settings с ключом token, для получения токена
+
+
+
