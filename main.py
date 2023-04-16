@@ -42,11 +42,8 @@ async def on_message(ctx : discord.message.Message):
             "This message has buttons!",  # текст сообщения как обычно
             view=Buttons()  # создаём экземпляр класса Buttons и прикрепляем его
         )
-    if ctx.content.startswith(f'{settings["prefix"]}button'):
-        await ctx.channel.send(
-            "This message has buttons!",  # текст сообщения как обычно
-            view=Buttons()  # создаём экземпляр класса Buttons и прикрепляем его
-        )
+    if ctx.content.startswith(f'{settings["prefix"]}play'):
+        await ctx.channel.send("I play youtube")
 
 
 @bot.event
